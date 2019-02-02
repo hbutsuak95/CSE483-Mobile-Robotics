@@ -1,0 +1,38 @@
+function fRANSAC = estimateFundamentalMatrixRANSAC(matchedPoints1, matchedPoints2, numIter)    
+    x1 = matchedPoints1;
+    x2 = matchedPoints2;
+    
+    %set a threshold for collinearity error(points having lower error will be
+    %considered as inliers while those with higher error values will be
+    %considered as outliers
+    eth = 0.01;
+    maxInliers = 0;
+    for i=1:numIter
+        % randomly sample 8 points from the matchedPoints
+        index = randi(size(x1, 1), [8,1]);
+        sample_x1 = x1(index, :);
+        sample_x2 = x2(index, :);
+        % Calculate an estimate of F using these 8 points
+        F = estimate_fundamental_matrix(sample_x1, sample_x2);
+        % Calculate the collinearity error for each point 
+        err = sum((xb .* (FmatrixEstimate * xa')'),2);
+        % Calculate the number of inliers for the current estimate of F
+        numInliers = size( find(abs(err) <= eth) , 1);
+        % If the number of current inliers is more than the best set the
+        % current to best and save the estimate of F matrix
+        
+%         if (maxInliers > 0.5*size(x1,1))
+%             break
+%         end
+        
+        
+        if (numInliers > maxInliers)
+            maxInliers = numInliers;
+            fRANSAC = F;
+        end
+    end
+   
+fRANSAC = estimate_fundamental_matrix(x1(Inliers,:), x2(Inliers,:));
+fprintf("Inliers corresponding to best estimate of F is %d", maxInliers);
+
+end
